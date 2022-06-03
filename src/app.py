@@ -14,14 +14,15 @@ def mostrar_habitaciones(): #metdo que lista las habitaciones creadas en la BDD
    try:
        
        cursor=conexion.connection.cursor()
-       sql="SELECT id, numero, precio FROM habitaciones"
+       sql="SELECT id, codigo, numero, precioPorDia, fecha, estado FROM habitaciones"
        cursor.execute(sql)
        datos=cursor.fetchall()
        print(datos)
        cuartos=[] #creo una lista vacia para poder guardar las habitaciones que vienen de datos
        
        for fila in datos:    #se crea para poder recorrer las habitaciones que vienen en forma de tupla en la variable datos
-           cuarto = {'id': fila[0], 'numero': fila[1], 'precio': fila[2]} #en este diccionario se almacenan los datos para despues convertirlos a json
+           cuarto = {'id': fila[0], 'codigo': fila[1], 'numero': fila[2], 'precioPorDia': fila[3],
+           'fecha': fila[4], 'estado': fila[5]} #en este diccionario se almacenan los datos para despues convertirlos a json
            cuartos.append(cuarto)
            #retorna un diccionario con la key habitaciones, los valores de cuartos y una mensaje
        return jsonify({'habitaciones': cuartos, 'mensaje':"las habitaciones estan listadas"})
@@ -30,18 +31,19 @@ def mostrar_habitaciones(): #metdo que lista las habitaciones creadas en la BDD
        return ex
 
 #dentro de numero va venir el numero de la habitacion que se quiere buscar
-@app.route('/habitaciones/<numero>', methods=['GET']) 
-def buscar_habitaciones(numero):
+@app.route('/habitaciones/<codigo>', methods=['GET']) 
+def buscar_habitaciones(codigo):
     try:
        cursor=conexion.connection.cursor()
        #se busca la habitacion solicitada con numero, valor que que se le pasa a la url
-       sql="SELECT id, numero, precio FROM habitaciones WHERE numero = '{0}'".format(numero)
+       sql="SELECT id, codigo, numero, precioPorDia, fecha, estado FROM habitaciones WHERE codigo = '{0}'".format(codigo)
        cursor.execute(sql)
        datos=cursor.fetchone()
        
        #si datos no esta vacio, busca y retorna la habitacion con el numero que se le paso por url
        if datos != None:
-          cuarto = {'id': datos[0], 'numero': datos[1], 'precio': datos[2]}
+          cuarto = {'id': datos[0], 'codigo': datos[1], 'numero': datos[2], 'precioPorDia': datos[3],
+          'fecha': datos[4], 'estado': datos[5]}
           return jsonify({'habitaciones': cuarto, 'mensaje':"la habitacion ha sido encontrada"})       
        else:
            return jsonify({'mensaje': "error habitacion no encontrada"})   
@@ -56,8 +58,9 @@ def registrar_habitaciones():
     try:
         #print(request.json)
         cursor=conexion.connection.cursor()
-        sql="""INSERT INTO habitaciones (id, numero, precio) VALUES ('{0}','{1}','{2}')""".format(request.json['id'],
-        request.json['numero'], request.json['precio'])
+        sql="""INSERT INTO habitaciones (id, codigo, numero, precioPorDia, fecha, estado) VALUES ('{0}','{1}','{2}','{3}','{4}','{5}')""".format(request.json['id'],
+        request.json['codigo'], request.json['numero'], request.json['precioPorDia'],
+        request.json['fecha'], request.json['estado'])
         cursor.execute(sql)
         conexion.connection.commit() #confirma la insercion de los datos
                 
@@ -66,12 +69,14 @@ def registrar_habitaciones():
        return ex 
 
 #metodo para que el empleado pueda actualizar info de las habitaciones
-@app.route('/habitaciones/<numero>', methods=['PUT'])
-def actualizar_habitaciones(numero):
+@app.route('/habitaciones/<codigo>', methods=['PUT'])
+def actualizar_habitaciones(codigo):
     try:
+
        cursor=conexion.connection.cursor()
-       sql="""UPDATE habitaciones SET id = '{0}', numero = '{1}', precio = '{2}' WHERE numero = '{3}'""".format(request.json['id'],
-       request.json['numero'], request.json['precio'],numero)
+       sql="""UPDATE habitaciones SET precioPorDia = '{0}', fecha = '{1}',
+       estado = '{2}'  WHERE codigo = '{3}'""".format(request.json['precioPorDia'], request.json['fecha'],
+       request.json['estado'], codigo)
        cursor.execute(sql)
        conexion.connection.commit()
        return jsonify({'mensaje':"habitacion actualizada"})
@@ -81,11 +86,11 @@ def actualizar_habitaciones(numero):
 
 
 #metodo para que el empleado pueda eliminar habitaciones
-@app.route('/habitaciones/<numero>', methods=['DELETE'])
-def eliminar_habitaciones(numero):
+@app.route('/habitaciones/<codigo>', methods=['DELETE'])
+def eliminar_habitaciones(codigo):
     try:
        cursor=conexion.connection.cursor()
-       sql="DELETE FROM habitaciones WHERE numero = '{0}'".format(numero)
+       sql="DELETE FROM habitaciones WHERE codigo = '{0}'".format(codigo)
        cursor.execute(sql)
        conexion.connection.commit()
        return jsonify({'mensaje':"habitacion eliminada"})
