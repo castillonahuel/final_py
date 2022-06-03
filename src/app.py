@@ -104,29 +104,6 @@ def buscar_habitaciones(codigo):
     except Exception as ex:
         return ex
 
-# dentro de numero va venir el numero de la habitacion que se quiere buscar
-
-
-@app.route('/habitaciones/<numero>', methods=['GET'])
-def buscar_habitaciones(numero):
-    try:
-        cursor = conexion.connection.cursor()
-        # se busca la habitacion solicitada con numero, valor que que se le pasa a la url
-        sql = "SELECT id, numero, precio FROM habitaciones WHERE numero = '{0}'".format(
-            numero)
-        cursor.execute(sql)
-        datos = cursor.fetchone()
-
-        # si datos no esta vacio, busca y retorna la habitacion con el numero que se le paso por url
-        if datos != None:
-            cuarto = {'id': datos[0], 'numero': datos[1], 'precio': datos[2]}
-            return jsonify({'habitaciones': cuarto, 'mensaje': "la habitacion ha sido encontrada"})
-        else:
-            return jsonify({'mensaje': "error habitacion no encontrada"})
-
-    except Exception as ex:
-        return ex
-
 
 # metodo para que el empleado pueda registrar habitaciones
 @app.route('/registrar', methods=['POST'])
@@ -143,10 +120,6 @@ def registrar_habitaciones():
         return jsonify({'mensaje': "habitacion registrada con exito"})
     except Exception as ex:
         return ex
-
-# metodo para que el empleado pueda actualizar info de las habitaciones
-
-
 
 #metodo para que el empleado pueda actualizar info de las habitaciones
 @app.route('/habitaciones/<codigo>', methods=['PUT'])
@@ -175,20 +148,6 @@ def eliminar_habitaciones(codigo):
        cursor.execute(sql)
        conexion.connection.commit()
        return jsonify({'mensaje':"habitacion eliminada"})
-    except Exception as ex:
-        return ex
-
-
-# metodo para que el empleado pueda eliminar habitaciones
-@app.route('/habitaciones/<numero>', methods=['DELETE'])
-def eliminar_habitaciones(numero):
-    try:
-        cursor = conexion.connection.cursor()
-        sql = "DELETE FROM habitaciones WHERE numero = '{0}'".format(numero)
-        cursor.execute(sql)
-        conexion.connection.commit()
-        return jsonify({'mensaje': "habitacion eliminada"})
-
     except Exception as ex:
         return ex
 
