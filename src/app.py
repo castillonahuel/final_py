@@ -26,18 +26,6 @@ def token_required(func):
             return jsonify({'Alerta': 'Token Invalido'})
     return decorated
 
-
-@app.route('/public')
-def public():
-    return 'Para el publico'
-
-
-@app.route('/auth')
-@token_required
-def auth():
-    return 'El JWT fue verificado. Bienvenido al sistema'
-
-
 @app.route('/')
 def home():
     if not session.get('logged_in'):
@@ -48,16 +36,36 @@ def home():
 
 @app.route('/login', methods=['POST'])
 def login():
-    if request.form['username'] and request.form['password'] == '1234':
+    if request.form['username'] and request.form['password'] == 'habitacionescli':
         session['logged_in'] = True
         token = jwt.encode({
-            'user': request.form['username'],
+            'usuario': request.form['username'],
+            'tipo usuario': 'Cliente',
             'expiration': str(datetime.utcnow() + timedelta(seconds=120))
         },
             app.config['SECRET_KEY'])
-        return jsonify({'token': token})
+        llave = jsonify({'token': token})
+        return render_template('clientes.html', llave = llave)
+
+    if request.form['username'] and request.form['password'] == 'habitacionesemp':
+        session['logged_in'] = True
+        token = jwt.encode({
+            'usuario': request.form['username'],
+            'tipo usuario': 'Empleado',
+            'expiration': str(datetime.utcnow() + timedelta(seconds=120))
+        },
+            app.config['SECRET_KEY'])
+        llave = jsonify({'token': token}) 
+        return render_template('empleados.html', llave = llave) 
+
     else:
         return make_response('No se puede verificar', 403)
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    session['logged_in'] = False
+    return render_template('login.html')
+
 
 
 # conexion con el parametro de esta aplicacion
