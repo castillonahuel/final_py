@@ -62,7 +62,6 @@ def login():
 
 # conexion con el parametro de esta aplicacion
 conexion = MySQL(app)
-<<<<<<< HEAD
 @app.route('/habitaciones', methods=['GET'])
 def mostrar_habitaciones(): #metdo que lista las habitaciones creadas en la BDD
    try:
@@ -101,27 +100,6 @@ def buscar_habitaciones(codigo):
           return jsonify({'habitaciones': cuarto, 'mensaje':"la habitacion ha sido encontrada"})       
        else:
            return jsonify({'mensaje': "error habitacion no encontrada"})   
-=======
-
-
-@app.route('/habitaciones', methods=['GET'])
-def mostrar_habitaciones():  # metdo que lista las habitaciones creadas en la BDD
-    try:
-
-        cursor = conexion.connection.cursor()
-        sql = "SELECT id, numero, precio FROM habitaciones"
-        cursor.execute(sql)
-        datos = cursor.fetchall()
-        print(datos)
-        cuartos = []  # creo una lista vacia para poder guardar las habitaciones que vienen de datos
-
-        for fila in datos:  # se crea para poder recorrer las habitaciones que vienen en forma de tupla en la variable datos
-            # en este diccionario se almacenan los datos para despues convertirlos a json
-            cuarto = {'id': fila[0], 'numero': fila[1], 'precio': fila[2]}
-            cuartos.append(cuarto)
-            # retorna un diccionario con la key habitaciones, los valores de cuartos y una mensaje
-        return jsonify({'habitaciones': cuartos, 'mensaje': "las habitaciones estan listadas"})
->>>>>>> 60a90661ac92725638bd3ebacf5e4df383cb6af8
 
     except Exception as ex:
         return ex
@@ -154,18 +132,11 @@ def buscar_habitaciones(numero):
 @app.route('/registrar', methods=['POST'])
 def registrar_habitaciones():
     try:
-<<<<<<< HEAD
         #print(request.json)
         cursor=conexion.connection.cursor()
         sql="""INSERT INTO habitaciones (id, codigo, numero, precioPorDia, fecha, estado) VALUES ('{0}','{1}','{2}','{3}','{4}','{5}')""".format(request.json['id'],
         request.json['codigo'], request.json['numero'], request.json['precioPorDia'],
         request.json['fecha'], request.json['estado'])
-=======
-        # print(request.json)
-        cursor = conexion.connection.cursor()
-        sql = """INSERT INTO habitaciones (id, numero, precio) VALUES ('{0}','{1}','{2}')""".format(request.json['id'],
-                                                                                                    request.json['numero'], request.json['precio'])
->>>>>>> 60a90661ac92725638bd3ebacf5e4df383cb6af8
         cursor.execute(sql)
         conexion.connection.commit()  # confirma la insercion de los datos
 
@@ -176,7 +147,7 @@ def registrar_habitaciones():
 # metodo para que el empleado pueda actualizar info de las habitaciones
 
 
-<<<<<<< HEAD
+
 #metodo para que el empleado pueda actualizar info de las habitaciones
 @app.route('/habitaciones/<codigo>', methods=['PUT'])
 def actualizar_habitaciones(codigo):
@@ -189,22 +160,11 @@ def actualizar_habitaciones(codigo):
        cursor.execute(sql)
        conexion.connection.commit()
        return jsonify({'mensaje':"habitacion actualizada"})
-=======
-@app.route('/habitaciones/<numero>', methods=['PUT'])
-def actualizar_habitaciones(numero):
-    try:
-        cursor = conexion.connection.cursor()
-        sql = """UPDATE habitaciones SET id = '{0}', numero = '{1}', precio = '{2}' WHERE numero = '{3}'""".format(request.json['id'],
-                                                                                                                   request.json['numero'], request.json['precio'], numero)
-        cursor.execute(sql)
-        conexion.connection.commit()
-        return jsonify({'mensaje': "habitacion actualizada"})
->>>>>>> 60a90661ac92725638bd3ebacf5e4df383cb6af8
+
     except Exception as ex:
         return ex
 
 
-<<<<<<< HEAD
 
 #metodo para que el empleado pueda eliminar habitaciones
 @app.route('/habitaciones/<codigo>', methods=['DELETE'])
@@ -215,7 +175,10 @@ def eliminar_habitaciones(codigo):
        cursor.execute(sql)
        conexion.connection.commit()
        return jsonify({'mensaje':"habitacion eliminada"})
-=======
+    except Exception as ex:
+        return ex
+
+
 # metodo para que el empleado pueda eliminar habitaciones
 @app.route('/habitaciones/<numero>', methods=['DELETE'])
 def eliminar_habitaciones(numero):
@@ -225,7 +188,7 @@ def eliminar_habitaciones(numero):
         cursor.execute(sql)
         conexion.connection.commit()
         return jsonify({'mensaje': "habitacion eliminada"})
->>>>>>> 60a90661ac92725638bd3ebacf5e4df383cb6af8
+
     except Exception as ex:
         return ex
 
