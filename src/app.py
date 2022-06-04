@@ -1,4 +1,5 @@
 from re import template
+from colorama import Cursor
 from flask import Flask, jsonify, request, make_response, render_template, session
 from config import config
 from flask_mysqldb import MySQL
@@ -91,44 +92,69 @@ def mostrar_habitaciones(): #metdo que lista las habitaciones creadas en la BDD
    except Exception as ex:
        return ex
 
-#dentro de numero va venir el numero de la habitacion que se quiere buscar
-@app.route('/habitaciones/<numero>', methods=['GET']) 
-def buscar_habitaciones(numero):
+def buscar_cuartobd(numero):
     try:
        cursor=conexion.connection.cursor()
        #se busca la habitacion solicitada con numero, valor que que se le pasa a la url
        sql="SELECT id, numero, precioPorDia, fecha, estado FROM habitaciones WHERE numero = '{0}'".format(numero)
        cursor.execute(sql)
        datos=cursor.fetchone()
-       
-       #si datos no esta vacio, busca y retorna la habitacion con el numero que se le paso por url
        if datos != None:
           cuarto = {'id': datos[0], 'numero': datos[1], 'precioPorDia': datos[2],
           'fecha': datos[3], 'estado': datos[4]}
-          return jsonify({'habitaciones': cuarto, 'mensaje':"la habitacion ha sido encontrada"})       
+          return cuarto
        else:
-           return jsonify({'mensaje': "error habitacion no encontrada"})   
-
+           return None
     except Exception as ex:
-        return ex
+        raise ex
 
+
+#dentro de numero va venir el numero de la habitacion que se quiere buscar
+@app.route('/habitaciones/<numero>', methods=['GET']) 
+def buscar_habitaciones(numero):
+    try:
+       cuarto = buscar_cuartobd(numero)
+       if cuarto != None:
+          return jsonify({'habitaciones': cuarto, 'mensaje':"la habitacion ha sido encontrada", 'exito': True})        
+       else:
+           return jsonify({'mensaje': "error habitacion no encontrada", 'exito': False})   
+
+       
+    except Exception as ex:
+        return jsonify({'mensaje': "Error", 'exito': False})    
+
+       
 
 # metodo para que el empleado pueda registrar habitaciones
 @app.route('/registrar', methods=['POST'])
 def registrar_habitaciones():
     try:
-        #print(request.json)
-        cursor=conexion.connection.cursor()
-        sql="""INSERT INTO habitaciones (id, numero, precioPorDia, fecha, estado) VALUES ('{0}','{1}','{2}','{3}','{4}')""".format(request.json['id'],
-        request.json['numero'], request.json['precioPorDia'],
-        request.json['fecha'], request.json['estado'])
-        cursor.execute(sql)
-        conexion.connection.commit()  # confirma la insercion de los datos
+        cursor = conexion.connection.cursor()
+        numsql = "SELECT numero FROM habitaciones"        
+        cursor.execute(numsql)
+        datos = cursor.fetchall()
+        nums = []
+        for fila in datos:
+           #y = {'numero': fila[0]}
+           num = [fila]
+           nums.append(num)                              
+        #return jsonify(num)                      
+        sql="""INSERT INTO habitaciones (numero, precioPorDia, fecha, estado) VALUES ('{0}','{1}','{2}','{3}')""".format(request.json['numero'],
+        request.json['precioPorDia'], request.json['fecha'], request.json['estado'])   
+        numjson = request.json['numero']
+        if numjson in nums :
+            return jsonify({'mensaje': "ERROR habitacion registrada ya existe"})
+        else:
+            cursor.execute(sql)
+            conexion.connection.commit()
+            return jsonify({'mensaje': "habitacion registrada con exito"})
+        
 
-        return jsonify({'mensaje': "habitacion registrada con exito"})
     except Exception as ex:
-        return ex
-
+            return jsonify({'mensaje': "Error", 'exito': False})
+ 
+    
+   
 #metodo para que el empleado pueda actualizar info de las habitaciones
 @app.route('/habitaciones/<numero>', methods=['PUT'])
 def actualizar_habitaciones(numero):
