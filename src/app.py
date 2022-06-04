@@ -89,9 +89,6 @@ def mostrar_habitaciones(): #metdo que lista las habitaciones creadas en la BDD
    except Exception as ex:
        return ex
 
-<<<<<<< HEAD
-def buscar_cuartobd(numero):
-=======
 @app.route('/habitaciones-reservadas', methods=['GET'])
 def mostrar_habitaciones_reservadas(): #metdo que lista las habitaciones reservadas
    try: 
@@ -112,10 +109,7 @@ def mostrar_habitaciones_reservadas(): #metdo que lista las habitaciones reserva
    except Exception as ex:
        return ex
 
-#dentro de numero va venir el numero de la habitacion que se quiere buscar
-@app.route('/habitaciones/<numero>', methods=['GET']) 
-def buscar_habitaciones(numero):
->>>>>>> 8b1b53c0bc7a9b12682ffcad5e1892827bbf4231
+def buscar_cuartobd(numero):
     try:
        cursor=conexion.connection.cursor()
        #se busca la habitacion solicitada con numero, valor que que se le pasa a la url
@@ -153,37 +147,28 @@ def buscar_habitaciones(numero):
 def registrar_habitaciones():
     try:
         cursor = conexion.connection.cursor()
-        numsql = "SELECT numero FROM habitaciones"        
-        cursor.execute(numsql)
-        datos = cursor.fetchall()
-        nums = []
-        for fila in datos:
-           #y = {'numero': fila[0]}
-           num = [fila]
-           nums.append(num)                              
+        numsql = ("SELECT * FROM habitaciones WHERE numero = '{0}'").format(request.json['numero'])    
+        query = cursor.execute(numsql)
+        #datos = cursor.fetchall()
+        #nums = []
+        #for fila in datos:
+        #   y = {'numero': fila[0]}
+        #   num = [fila]
+        #   nums.append(num)                              
         #return jsonify(num)                      
-        sql="""INSERT INTO habitaciones (numero, precioPorDia, fecha, estado) VALUES ('{0}','{1}','{2}','{3}')""".format(request.json['numero'],
-        request.json['precioPorDia'], request.json['fecha'], request.json['estado'])   
-        numjson = request.json['numero']
-        if numjson in nums :
+        #numjson = request.json['numero']
+        if query == 1 :
             return jsonify({'mensaje': "ERROR habitacion registrada ya existe"})
         else:
+            sql="""INSERT INTO habitaciones (numero, precioPorDia, fecha, estado) VALUES ('{0}','{1}','{2}','{3}')""".format(request.json['numero'],
+            request.json['precioPorDia'], request.json['fecha'], request.json['estado']) 
             cursor.execute(sql)
             conexion.connection.commit()
             return jsonify({'mensaje': "habitacion registrada con exito"})
-        
-
     except Exception as ex:
-<<<<<<< HEAD
-            return jsonify({'mensaje': "Error", 'exito': False})
- 
-    
-   
-=======
         return ex
 
 
->>>>>>> 8b1b53c0bc7a9b12682ffcad5e1892827bbf4231
 #metodo para que el empleado pueda actualizar info de las habitaciones
 @app.route('/habitaciones/empleado/actualizar/<numero>', methods=['PUT'])
 def actualizar_habitaciones(numero):
