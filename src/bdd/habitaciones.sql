@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 04-06-2022 a las 04:01:58
+-- Tiempo de generación: 04-06-2022 a las 04:21:19
 -- Versión del servidor: 10.4.20-MariaDB
 -- Versión de PHP: 7.4.22
 
@@ -47,7 +47,7 @@ INSERT INTO `habitaciones` (`id`, `numero`, `precioPorDia`, `fecha`, `estado`) V
 (5, '14', '100.00', '2022-05-15', 1),
 (6, '15', '100.00', '2022-06-12', 0),
 (7, '16', '66.00', '2022-06-30', 0),
-(8, '17', '1500.60', '2002-05-08', 0);
+(9, '18', '180.00', '2022-05-25', 1);
 
 --
 -- Índices para tablas volcadas
@@ -67,7 +67,7 @@ ALTER TABLE `habitaciones`
 -- AUTO_INCREMENT de la tabla `habitaciones`
 --
 ALTER TABLE `habitaciones`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
