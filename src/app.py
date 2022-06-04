@@ -88,6 +88,26 @@ def mostrar_habitaciones(): #metdo que lista las habitaciones creadas en la BDD
    except Exception as ex:
        return ex
 
+@app.route('/habitaciones-reservadas', methods=['GET'])
+def mostrar_habitaciones_reservadas(): #metdo que lista las habitaciones reservadas
+   try: 
+       cursor=conexion.connection.cursor()
+       sql="SELECT * FROM habitaciones WHERE estado = 1"
+       cursor.execute(sql)
+       datos=cursor.fetchall()
+       print(datos)
+       cuartos=[] #creo una lista vacia para poder guardar las habitaciones que vienen de datos
+       
+       for fila in datos:    #se crea para poder recorrer las habitaciones que vienen en forma de tupla en la variable datos
+           cuarto = {'id': fila[0], 'numero': fila[1], 'precioPorDia': fila[2],
+           'fecha': fila[3], 'estado': fila[4]} #en este diccionario se almacenan los datos para despues convertirlos a json
+           cuartos.append(cuarto)
+           #retorna un diccionario con la key habitaciones, los valores de cuartos y una mensaje
+       return jsonify({'habitaciones': cuartos, 'mensaje':"las habitaciones estan listadas"})
+ 
+   except Exception as ex:
+       return ex
+
 #dentro de numero va venir el numero de la habitacion que se quiere buscar
 @app.route('/habitaciones/<numero>', methods=['GET']) 
 def buscar_habitaciones(numero):
@@ -126,8 +146,9 @@ def registrar_habitaciones():
     except Exception as ex:
         return ex
 
+
 #metodo para que el empleado pueda actualizar info de las habitaciones
-@app.route('/habitaciones/<numero>', methods=['PUT'])
+@app.route('/habitaciones/empleado/actualizar/<numero>', methods=['PUT'])
 def actualizar_habitaciones(numero):
     try:
 
@@ -143,9 +164,8 @@ def actualizar_habitaciones(numero):
         return ex
 
 
-
 #metodo para que el empleado pueda eliminar habitaciones
-@app.route('/habitaciones/<numero>', methods=['DELETE'])
+@app.route('/habitaciones/empleado/borrar/<numero>', methods=['DELETE'])
 def eliminar_habitaciones(numero):
     try:
        cursor=conexion.connection.cursor()
@@ -155,6 +175,7 @@ def eliminar_habitaciones(numero):
        return jsonify({'mensaje':"habitacion eliminada"})
     except Exception as ex:
         return ex
+
 
 #metodo para que el cliente para buscar por precio menor al elegido
 @app.route('/habitaciones/clientes/precio/<precio>', methods=['GET'])
@@ -176,6 +197,7 @@ def buscar_habitaciones_por_precio(precio):
     except Exception as ex:
         return ex
 
+
 #metodo para que el cliente para buscar por una fecha
 @app.route('/habitaciones/clientes/fechaunica/<fecha>', methods=['GET'])
 def buscar_habitaciones_por_fecha(fecha):
@@ -195,6 +217,7 @@ def buscar_habitaciones_por_fecha(fecha):
        return jsonify({'habitaciones': result, 'mensaje':"las habitaciones estan listadas"})
     except Exception as ex:
         return ex
+
 
 #metodo para que el cliente para buscar por un rango de fecha
 @app.route('/habitaciones/clientes/rangofecha/<fechainicio>-<fechafinal>', methods=['GET'])
@@ -216,7 +239,23 @@ def buscar_habitaciones_por_rango_fecha(fechainicio, fechafinal):
     except Exception as ex:
         return ex
 
+#metodo para que el cliente para reservar una habitacion si esta disponible
+@app.route('/habitaciones/clientes/reserva/<numero>', methods=['POST'])
+def reservar_habitacion(numero):
+    try:
+       cursor=conexion.connection.cursor()
+       sql="SELECT * FROM habitaciones WHERE numero = '{0}' AND estado = 0".format(numero)
+       query=cursor.execute(sql)
 
+       if query != 1:
+           return jsonify({'mensaje':'La habitacion no esta disponible'})
+       else:
+           sql="""UPDATE habitaciones SET estado = 1 WHERE numero = '{0}'""".format(numero)
+           cursor.execute(sql)
+           conexion.connection.commit()
+           return jsonify({'mensaje':"la habitacion ha sido reservada"})
+    except Exception as ex:
+        return ex
 
 # rutas de error
 def pagina_no_existe(error):
