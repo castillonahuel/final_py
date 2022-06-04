@@ -3,7 +3,6 @@ from flask import Flask, jsonify, request, make_response, render_template, sessi
 from config import config
 from flask_mysqldb import MySQL
 import jwt
-from datetime import datetime, timedelta
 from functools import wraps
 
 
@@ -41,7 +40,6 @@ def login():
         token = jwt.encode({
             'usuario': request.form['username'],
             'tipo usuario': 'Cliente',
-            'expiration': str(datetime.utcnow() + timedelta(seconds=120))
         },
             app.config['SECRET_KEY'])
         llave = token
@@ -52,7 +50,6 @@ def login():
         token = jwt.encode({
             'usuario': request.form['username'],
             'tipo usuario': 'Empleado',
-            'expiration': str(datetime.utcnow() + timedelta(seconds=120))
         },
             app.config['SECRET_KEY'])
         llave = token 
@@ -158,6 +155,67 @@ def eliminar_habitaciones(numero):
        return jsonify({'mensaje':"habitacion eliminada"})
     except Exception as ex:
         return ex
+
+#metodo para que el cliente para buscar por precio menor al elegido
+@app.route('/habitaciones/clientes/precio/<precio>', methods=['GET'])
+def buscar_habitaciones_por_precio(precio):
+    try:
+       cursor=conexion.connection.cursor()
+       sql="SELECT * FROM habitaciones WHERE precioPorDia < '{0}'".format(precio)
+       cursor.execute(sql)
+       datos=cursor.fetchall()
+       print(datos)
+       result=[]
+
+       for fila in datos:    #se crea para poder recorrer las habitaciones que vienen en forma de tupla en la variable datos
+           cuarto = {'id': fila[0], 'numero': fila[1], 'precioPorDia': fila[2],
+           'fecha': fila[3], 'estado': fila[4]} #en este diccionario se almacenan los datos para despues convertirlos a json
+           result.append(cuarto)
+           #retorna un diccionario con la key habitaciones, los valores de cuartos y un mensaje
+       return jsonify({'habitaciones': result, 'mensaje':"las habitaciones estan listadas"})
+    except Exception as ex:
+        return ex
+
+#metodo para que el cliente para buscar por una fecha
+@app.route('/habitaciones/clientes/fechaunica/<fecha>', methods=['GET'])
+def buscar_habitaciones_por_fecha(fecha):
+    try:
+       cursor=conexion.connection.cursor()
+       sql="SELECT * FROM habitaciones WHERE fecha = '{0}'".format(fecha)
+       cursor.execute(sql)
+       datos=cursor.fetchall()
+       print(datos)
+       result=[]
+
+       for fila in datos:    #se crea para poder recorrer las habitaciones que vienen en forma de tupla en la variable datos
+           cuarto = {'id': fila[0], 'numero': fila[1], 'precioPorDia': fila[2],
+           'fecha': fila[3], 'estado': fila[4]} #en este diccionario se almacenan los datos para despues convertirlos a json
+           result.append(cuarto)
+           #retorna un diccionario con la key habitaciones, los valores de cuartos y un mensaje
+       return jsonify({'habitaciones': result, 'mensaje':"las habitaciones estan listadas"})
+    except Exception as ex:
+        return ex
+
+#metodo para que el cliente para buscar por un rango de fecha
+@app.route('/habitaciones/clientes/rangofecha/<fechainicio>-<fechafinal>', methods=['GET'])
+def buscar_habitaciones_por_rango_fecha(fechainicio, fechafinal):
+    try:
+       cursor=conexion.connection.cursor()
+       sql="SELECT * FROM habitaciones WHERE fecha BETWEEN '{0}' AND '{1}'".format(fechainicio, fechafinal)
+       cursor.execute(sql)
+       datos=cursor.fetchall()
+       print(datos)
+       result=[]
+
+       for fila in datos:    #se crea para poder recorrer las habitaciones que vienen en forma de tupla en la variable datos
+           cuarto = {'id': fila[0], 'numero': fila[1], 'precioPorDia': fila[2],
+           'fecha': fila[3], 'estado': fila[4]} #en este diccionario se almacenan los datos para despues convertirlos a json
+           result.append(cuarto)
+           #retorna un diccionario con la key habitaciones, los valores de cuartos y un mensaje
+       return jsonify({'habitaciones': result, 'mensaje':"las habitaciones estan listadas"})
+    except Exception as ex:
+        return ex
+
 
 
 # rutas de error
