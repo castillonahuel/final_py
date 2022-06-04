@@ -44,8 +44,8 @@ def login():
             'expiration': str(datetime.utcnow() + timedelta(seconds=120))
         },
             app.config['SECRET_KEY'])
-        llave = jsonify({'token': token})
-        return render_template('clientes.html', llave = llave)
+        llave = token
+        return render_template('clientes.html', llave =  llave)
 
     if request.form['username'] and request.form['password'] == 'habitacionesemp':
         session['logged_in'] = True
@@ -55,7 +55,7 @@ def login():
             'expiration': str(datetime.utcnow() + timedelta(seconds=120))
         },
             app.config['SECRET_KEY'])
-        llave = jsonify({'token': token}) 
+        llave = token 
         return render_template('empleados.html', llave = llave) 
 
     else:
