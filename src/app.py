@@ -13,7 +13,7 @@ app.config["SECRET_KEY"] = '0b7807f50046438aa179c6987907704e'
 
 # login
 
-
+#decorador que llama y guarda los datos en un jwt
 def token_required(func):
     @wraps(func)
     def decorated(*args, **kwargs):
@@ -26,6 +26,7 @@ def token_required(func):
             return jsonify({'Alerta': 'Token Invalido'})
     return decorated
 
+#metodo para detectar la session del usuario
 @app.route('/')
 def home():
     if not session.get('logged_in'):
@@ -33,7 +34,7 @@ def home():
     else:
         return 'Ya esta logueado.'
 
-
+#metodo para login de usuario, devuelve el jwt dependiendo de si es empleado o cliente, tambien redirige a las vistas correspondientes
 @app.route('/login', methods=['POST'])
 def login():
     if request.form['username'] and request.form['password'] == 'habitacionescli':
@@ -59,6 +60,7 @@ def login():
     else:
         return make_response('No se puede verificar', 403)
 
+#metodo de cierre de session
 @app.route('/logout', methods=['POST'])
 def logout():
     session['logged_in'] = False
@@ -69,7 +71,7 @@ def logout():
 # conexion con el parametro de esta aplicacion
 conexion = MySQL(app)
 @app.route('/habitaciones', methods=['GET'])
-def mostrar_habitaciones(): #metdo que lista las habitaciones creadas en la BDD
+def mostrar_habitaciones(): #metodo que lista las habitaciones creadas en la BDD
    try:
        
        cursor=conexion.connection.cursor()
@@ -90,7 +92,7 @@ def mostrar_habitaciones(): #metdo que lista las habitaciones creadas en la BDD
        return ex
 
 @app.route('/habitaciones-reservadas', methods=['GET'])
-def mostrar_habitaciones_reservadas(): #metdo que lista las habitaciones reservadas
+def mostrar_habitaciones_reservadas(): #metodo que lista las habitaciones reservadas
    try: 
        cursor=conexion.connection.cursor()
        sql="SELECT * FROM habitaciones WHERE estado = 1"
