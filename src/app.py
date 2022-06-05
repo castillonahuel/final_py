@@ -143,7 +143,7 @@ def buscar_habitaciones(numero):
        
 
 # metodo para que el empleado pueda registrar habitaciones
-@app.route('/registrar', methods=['POST'])
+@app.route('/empleado/registrar', methods=['POST'])
 def registrar_habitaciones():
     try:
         cursor = conexion.connection.cursor()
@@ -261,7 +261,7 @@ def buscar_habitaciones_por_rango_fecha(fechainicio, fechafinal):
     except Exception as ex:
         return ex
 
-#metodo para que el cliente para reservar una habitacion si esta disponible
+#metodo para que el cliente puede reservar una habitacion si esta disponible
 @app.route('/habitaciones/clientes/reserva/<numero>', methods=['POST'])
 def reservar_habitacion(numero):
     try:
