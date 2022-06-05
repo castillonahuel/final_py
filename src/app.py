@@ -154,15 +154,6 @@ def registrar_habitaciones():
         cursor = conexion.connection.cursor()
         numsql = ("SELECT * FROM habitaciones WHERE numero = '{0}'").format(request.json['numero'])    
         query = cursor.execute(numsql)
-        #datos = cursor.fetchall()
-        #nums = []
-        #for fila in datos:
-        #   y = {'numero': fila[0]}
-        #   num = [fila]
-        #   nums.append(num)                              
-        #return jsonify(num)                      
-        #numjson = request.json['numero']
-        #se valida que el numero de habitacion cargado no exista en la bdd
         if query == 1 :
             return jsonify({'mensaje': "ERROR habitacion registrada ya existe"})
         else:
