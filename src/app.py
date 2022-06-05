@@ -68,9 +68,10 @@ def logout():
 
 
 
-# conexion con el parametro de esta aplicacion
+# conexion a la bdd con el parametro de esta aplicacion
 conexion = MySQL(app)
-@app.route('/habitaciones', methods=['GET'])
+
+@app.route('/habitaciones', methods=['GET']) 
 def mostrar_habitaciones(): #metodo que lista las habitaciones creadas en la BDD
    try:
        
@@ -81,7 +82,7 @@ def mostrar_habitaciones(): #metodo que lista las habitaciones creadas en la BDD
        print(datos)
        cuartos=[] #creo una lista vacia para poder guardar las habitaciones que vienen de datos
        
-       for fila in datos:    #se crea para poder recorrer las habitaciones que vienen en forma de tupla en la variable datos
+       for fila in datos:    #for para poder recorrer las habitaciones que vienen en forma de tupla en la variable datos
            cuarto = {'id': fila[0], 'numero': fila[1], 'precioPorDia': fila[2],
            'fecha': fila[3], 'estado': fila[4]} #en este diccionario se almacenan los datos para despues convertirlos a json
            cuartos.append(cuarto)
@@ -92,29 +93,30 @@ def mostrar_habitaciones(): #metodo que lista las habitaciones creadas en la BDD
        return ex
 
 @app.route('/habitaciones-reservadas', methods=['GET'])
-def mostrar_habitaciones_reservadas(): #metodo que lista las habitaciones reservadas
+#metodo que lista las habitaciones reservadas. Estas tiene un estado de 1. en cambio las que se encuentran libres tiene un estado 0
+def mostrar_habitaciones_reservadas(): 
    try: 
        cursor=conexion.connection.cursor()
        sql="SELECT * FROM habitaciones WHERE estado = 1"
        cursor.execute(sql)
        datos=cursor.fetchall()
        print(datos)
-       cuartos=[] #creo una lista vacia para poder guardar las habitaciones que vienen de datos
+       cuartos=[] 
        
-       for fila in datos:    #se crea para poder recorrer las habitaciones que vienen en forma de tupla en la variable datos
+       for fila in datos:   
            cuarto = {'id': fila[0], 'numero': fila[1], 'precioPorDia': fila[2],
-           'fecha': fila[3], 'estado': fila[4]} #en este diccionario se almacenan los datos para despues convertirlos a json
+           'fecha': fila[3], 'estado': fila[4]} 
            cuartos.append(cuarto)
-           #retorna un diccionario con la key habitaciones, los valores de cuartos y una mensaje
+           
        return jsonify({'habitaciones': cuartos, 'mensaje':"las habitaciones estan listadas"})
  
    except Exception as ex:
        return ex
 
+#metodo que busca la habitacion solicitada con numero, valor que que se le pasa a la url
 def buscar_cuartobd(numero):
     try:
        cursor=conexion.connection.cursor()
-       #se busca la habitacion solicitada con numero, valor que que se le pasa a la url
        sql="SELECT id, numero, precioPorDia, fecha, estado FROM habitaciones WHERE numero = '{0}'".format(numero)
        cursor.execute(sql)
        datos=cursor.fetchone()
@@ -128,8 +130,9 @@ def buscar_cuartobd(numero):
         raise ex
 
 
-#dentro de numero va venir el numero de la habitacion que se quiere buscar
-@app.route('/habitaciones/<numero>', methods=['GET']) 
+#dentro de numero va venir el numero de la habitacion que se quiere buscar.
+#si se encuentra en la bdd retorna la habitacion con sus valores. En caso contrario retorna un mensaje
+@app.route('/habitaciones/empleado/<numero>', methods=['GET']) 
 def buscar_habitaciones(numero):
     try:
        cuarto = buscar_cuartobd(numero)
@@ -159,6 +162,7 @@ def registrar_habitaciones():
         #   nums.append(num)                              
         #return jsonify(num)                      
         #numjson = request.json['numero']
+        #se valida que el numero de habitacion cargado no exista en la bdd
         if query == 1 :
             return jsonify({'mensaje': "ERROR habitacion registrada ya existe"})
         else:
@@ -172,6 +176,7 @@ def registrar_habitaciones():
 
 
 #metodo para que el empleado pueda actualizar info de las habitaciones
+#se busca y trae la habitacion por el numero
 @app.route('/habitaciones/empleado/actualizar/<numero>', methods=['PUT'])
 def actualizar_habitaciones(numero):
     try:
@@ -188,7 +193,7 @@ def actualizar_habitaciones(numero):
         return ex
 
 
-#metodo para que el empleado pueda eliminar habitaciones
+#metodo para que el empleado pueda eliminar una habitacion
 @app.route('/habitaciones/empleado/borrar/<numero>', methods=['DELETE'])
 def eliminar_habitaciones(numero):
     try:
@@ -201,7 +206,7 @@ def eliminar_habitaciones(numero):
         return ex
 
 
-#metodo para que el cliente para buscar por precio menor al elegido
+#metodo para que el cliente pueda buscar por el precio menor al elegido
 @app.route('/habitaciones/clientes/precio/<precio>', methods=['GET'])
 def buscar_habitaciones_por_precio(precio):
     try:
@@ -212,17 +217,17 @@ def buscar_habitaciones_por_precio(precio):
        print(datos)
        result=[]
 
-       for fila in datos:    #se crea para poder recorrer las habitaciones que vienen en forma de tupla en la variable datos
+       for fila in datos:     
            cuarto = {'id': fila[0], 'numero': fila[1], 'precioPorDia': fila[2],
-           'fecha': fila[3], 'estado': fila[4]} #en este diccionario se almacenan los datos para despues convertirlos a json
+           'fecha': fila[3], 'estado': fila[4]} 
            result.append(cuarto)
-           #retorna un diccionario con la key habitaciones, los valores de cuartos y un mensaje
+           
        return jsonify({'habitaciones': result, 'mensaje':"las habitaciones estan listadas"})
     except Exception as ex:
         return ex
 
 
-#metodo para que el cliente para buscar por una fecha
+#metodo para que el cliente pueda buscar por fecha
 @app.route('/habitaciones/clientes/fechaunica/<fecha>', methods=['GET'])
 def buscar_habitaciones_por_fecha(fecha):
     try:
@@ -233,17 +238,19 @@ def buscar_habitaciones_por_fecha(fecha):
        print(datos)
        result=[]
 
-       for fila in datos:    #se crea para poder recorrer las habitaciones que vienen en forma de tupla en la variable datos
+       for fila in datos:    
            cuarto = {'id': fila[0], 'numero': fila[1], 'precioPorDia': fila[2],
-           'fecha': fila[3], 'estado': fila[4]} #en este diccionario se almacenan los datos para despues convertirlos a json
+           'fecha': fila[3], 'estado': fila[4]} 
            result.append(cuarto)
-           #retorna un diccionario con la key habitaciones, los valores de cuartos y un mensaje
+          
        return jsonify({'habitaciones': result, 'mensaje':"las habitaciones estan listadas"})
     except Exception as ex:
         return ex
 
 
-#metodo para que el cliente para buscar por un rango de fecha
+#metodo para que el cliente pueda buscar por un rango de fecha.
+#este rango de fecha consta de un inicio y un final. Se mostraran todas las habitaciones pero
+#las que no esten disponibles tendrán un estado 1
 @app.route('/habitaciones/clientes/rangofecha/<fechainicio>-<fechafinal>', methods=['GET'])
 def buscar_habitaciones_por_rango_fecha(fechainicio, fechafinal):
     try:
@@ -254,16 +261,16 @@ def buscar_habitaciones_por_rango_fecha(fechainicio, fechafinal):
        print(datos)
        result=[]
 
-       for fila in datos:    #se crea para poder recorrer las habitaciones que vienen en forma de tupla en la variable datos
+       for fila in datos:    
            cuarto = {'id': fila[0], 'numero': fila[1], 'precioPorDia': fila[2],
-           'fecha': fila[3], 'estado': fila[4]} #en este diccionario se almacenan los datos para despues convertirlos a json
+           'fecha': fila[3], 'estado': fila[4]} 
            result.append(cuarto)
-           #retorna un diccionario con la key habitaciones, los valores de cuartos y un mensaje
+           
        return jsonify({'habitaciones': result, 'mensaje':"las habitaciones estan listadas"})
     except Exception as ex:
         return ex
 
-#metodo para que el cliente puede reservar una habitacion si esta disponible
+#metodo para que el cliente pueda reservar una habitacion si esta disponible
 @app.route('/habitaciones/clientes/reserva/<numero>', methods=['POST'])
 def reservar_habitacion(numero):
     try:
