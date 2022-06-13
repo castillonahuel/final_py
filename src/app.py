@@ -1,3 +1,4 @@
+from logging.config import listen
 from re import template
 from colorama import Cursor
 from flask import Flask, jsonify, request, make_response, render_template, session
@@ -5,6 +6,7 @@ from config import config
 from flask_mysqldb import MySQL
 import jwt
 from functools import wraps
+from waitress import serve
 
 
 # instancia de flask/sirve para saber si este archivo que se esta ejecutando es el principal
@@ -287,4 +289,4 @@ def pagina_no_existe(error):
 if __name__ == '__main__':
     app.config.from_object(config['development'])
     app.register_error_handler(404, pagina_no_existe)
-    app.run()
+    serve(app, host='0.0.0.0', port = 8080)
