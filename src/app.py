@@ -34,15 +34,64 @@ def token_required(func):
 @app.route('/')
 def home():
     if not session.get('logged_in'):
-        return render_template('login.html')
+        return render_template('registrar.html')
     else:
         return 'Ya esta logueado.'
+
+
+@app.route('/registrar', methods=['POST'])
+def registrarUser():
+    if request.form['blogin'] == "Ingresar" :                
+        return render_template('login.html')
+    
+    try:       
+            cursor=conexion.connection.cursor()        
+            sql="SELECT * FROM login WHERE usuario = '{0}' AND password = '{1}'".format(request.form['username'], request.form['password'])        
+            query = cursor.execute(sql)
+            #datos = cursor.fetchall()
+        
+            if query == 1:
+                return 'el usuario ya existe'
+            else:                
+
+                               
+                rol = request.form['tipo']
+                verif = request.form['confirmacion']
+                #print(verif)
+                #return("".format(request.form['pass']))
+
+                if rol == 'cliente':
+                    sql="""INSERT INTO login (usuario, password, tipo) VALUES ('{0}','{1}','{2}')""".format(request.form['username'],
+                    request.form['password'], request.form['tipo'])
+                    cursor.execute(sql)
+                    conexion.connection.commit()
+                   
+                    return render_template('login.html')  
+                
+                elif rol == 'empleado' and verif == 'empleados-galacticos':
+                    sql="""INSERT INTO login (usuario, password, tipo) VALUES ('{0}','{1}','{2}')""".format(request.form['username'],
+                    request.form['password'],request.form['tipo'])
+                    cursor.execute(sql)
+                    conexion.connection.commit()
+                   
+                    return render_template('login.html')
+                else:
+                    return make_response('No se puede verificar', 403)
+
+            #else:
+                #return 'el usuario ya existe'
+                
+
+    except Exception as ex:
+        raise Exception(ex)
+
+
 
 #metodo para login de usuario, devuelve el jwt dependiendo de si es empleado o cliente, tambien redirige a las vistas correspondientes
 @app.route('/login', methods=['POST'])
 def login():
-    #if request.form['username'] and request.form['password'] == 'habitacionescli':
-        
+       
+    
         try:       
             cursor=conexion.connection.cursor()        
             sql="SELECT * FROM login WHERE usuario = '{0}' AND password = '{1}'".format(request.form['username'], request.form['password'])        
@@ -83,6 +132,7 @@ def login():
 
         except Exception as ex:
             raise Exception(ex)
+
      
        
 #metodo de cierre de session
