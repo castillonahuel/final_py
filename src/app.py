@@ -13,6 +13,8 @@ from waitress import serve
 app = Flask(__name__, template_folder="templates")
 app.config["SECRET_KEY"] = '0b7807f50046438aa179c6987907704e'
 
+# conexion a la bdd con el parametro de esta aplicacion
+conexion = MySQL(app)
 # login
 
 #decorador que llama y guarda los datos en un jwt
@@ -39,29 +41,50 @@ def home():
 #metodo para login de usuario, devuelve el jwt dependiendo de si es empleado o cliente, tambien redirige a las vistas correspondientes
 @app.route('/login', methods=['POST'])
 def login():
-    if request.form['username'] and request.form['password'] == 'habitacionescli':
-        session['logged_in'] = True
-        token = jwt.encode({
-            'usuario': request.form['username'],
-            'tipo usuario': 'Cliente',
-        },
-            app.config['SECRET_KEY'])
-        llave = token
-        return render_template('clientes.html', llave =  llave)
+    #if request.form['username'] and request.form['password'] == 'habitacionescli':
+        
+        try:       
+            cursor=conexion.connection.cursor()        
+            sql="SELECT * FROM login WHERE usuario = '{0}' AND password = '{1}'".format(request.form['username'], request.form['password'])        
+            query = cursor.execute(sql)
+            datos = cursor.fetchall()
+        
+            if query == 1:
 
-    if request.form['username'] and request.form['password'] == 'habitacionesemp':
-        session['logged_in'] = True
-        token = jwt.encode({
-            'usuario': request.form['username'],
-            'tipo usuario': 'Empleado',
-        },
-            app.config['SECRET_KEY'])
-        llave = token 
-        return render_template('empleados.html', llave = llave) 
+                for fila in datos:               
+                   rol =fila[3]
 
-    else:
-        return make_response('No se puede verificar', 403)
+                if rol == 'cliente':
+                    session['logged_in'] = True
 
+                    token = jwt.encode({
+                    'usuario': request.form['username'],
+                    'tipo usuario': rol,
+                    },
+                    app.config['SECRET_KEY'])
+                    llave = token
+                    return render_template('clientes.html', llave =  llave)
+                
+                elif rol == 'empleado':
+                     
+                    token = jwt.encode({
+                    'usuario': request.form['username'],
+                    'tipo usuario': rol,
+                    },
+                    app.config['SECRET_KEY'])
+                    llave = token 
+                    return render_template('empleados.html', llave = llave) 
+
+                else:
+                    return make_response('No se puede verificar', 403)
+
+            else:
+                return 'el usuario no existe'
+
+        except Exception as ex:
+            raise Exception(ex)
+     
+       
 #metodo de cierre de session
 @app.route('/logout', methods=['POST'])
 def logout():
@@ -70,8 +93,6 @@ def logout():
 
 
 
-# conexion a la bdd con el parametro de esta aplicacion
-conexion = MySQL(app)
 
 @app.route('/habitaciones', methods=['GET']) 
 def mostrar_habitaciones(): #metodo que lista las habitaciones creadas en la BDD
@@ -145,9 +166,7 @@ def buscar_habitaciones(numero):
 
        
     except Exception as ex:
-        return jsonify({'mensaje': "Error", 'exito': False})    
-
-       
+        return jsonify({'mensaje': "Error", 'exito': False})  
 
 # metodo para que el empleado pueda registrar habitaciones
 @app.route('/empleado/registrar', methods=['POST'])
