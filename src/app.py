@@ -2,6 +2,7 @@ from ast import Or
 from datetime import date
 from distutils import text_file
 from logging.config import listen
+from pickle import FALSE
 from re import template
 from colorama import Cursor
 from flask import Flask, jsonify, request, make_response, render_template, session
@@ -392,9 +393,7 @@ def reservar_habitacion():
         if query != 1:
             return jsonify({'mensaje': 'La habitacion no existe'})
         else:
-            if isinstance(request.json['fecha'], str) == True or request.json['fecha'] < 0:
-                return jsonify({'mensaje': "La fechas en formato 'aaaa-mm-dd'(sin separadores) y no van fechas en negativo"})
-            else:
+            if isinstance(request.json['fecha'], str) == False or request.json['fecha'] > 0:
                 sql = "SELECT * FROM reservas WHERE numero = {0}".format(request.json['numero'])
                 query = cursor.execute(sql)
                 if query != 1: 
@@ -403,15 +402,18 @@ def reservar_habitacion():
                     conexion.connection.commit()
                     return jsonify({'mensaje': "la habitacion ha sido reservada"})
                 else:
-                    sql = "SELECT * FROM reservas WHERE inicio_resv = {0}".format(request.json['fecha'])
+                    sql = "SELECT * FROM reservas WHERE numero = {0} AND inicio_resv = {1}".format(request.json['numero'], request.json['fecha'])
                     query = cursor.execute(sql)
                     if query == 1:
+                        return jsonify({'mensaje': "la habitacion no esta disponible"}) 
+                    else:
                         sql = """INSERT INTO reservas (numero, inicio_resv, fin_resv) VALUES ({0}, {1}, DATE_ADD(inicio_resv, INTERVAL {2} DAY))""".format(request.json['numero'], request.json['fecha'], request.json['cantdias'])
                         cursor.execute(sql)
                         conexion.connection.commit()
-                        return jsonify({'mensaje': "la habitacion ha sido reservada"})       
-                    else:
-                        return jsonify({'mensaje': "la habitacion no esta disponible"})
+                        return jsonify({'mensaje': "la habitacion ha sido reservada"})  
+                        
+            else:
+                return jsonify({'mensaje': "La fechas en formato 'aaaa-mm-dd'(sin separadores) y no van fechas en negativo"})
                 
     except Exception as ex:
         return ex
