@@ -1,6 +1,8 @@
+from ast import Or
+from datetime import date
+from distutils import text_file
 from logging.config import listen
 from re import template
-import re
 from colorama import Cursor
 from flask import Flask, jsonify, request, make_response, render_template, session
 from config import config
@@ -235,11 +237,14 @@ def registrar_habitaciones():
         if query == 1:
             return jsonify({'mensaje': "ERROR habitacion registrada ya existe"})
         else:
-            sql = """INSERT INTO habitaciones (numero, precioPorDia) VALUES ('{0}','{1}')""".format(request.json['numero'],
-            request.json['precioPorDia'])
-            cursor.execute(sql)
-            conexion.connection.commit()
-            return jsonify({'mensaje': "habitacion registrada con exito"})
+            if request.json['precioPorDia'] < 0 :
+                return jsonify({'mensaje': "No se permiten precios en negativo"})    
+            else:
+                sql = """INSERT INTO habitaciones (numero, precioPorDia) VALUES ('{0}','{1}')""".format(request.json['numero'],
+                request.json['precioPorDia'])
+                cursor.execute(sql)
+                conexion.connection.commit()
+                return jsonify({'mensaje': "habitacion registrada con exito"})
     except Exception as ex:
         return ex
 
@@ -249,13 +254,15 @@ def registrar_habitaciones():
 @app.route('/habitaciones/empleado/actualizar/<numero>', methods=['PUT'])
 def actualizar_habitaciones(numero):
     try:
-
-        cursor = conexion.connection.cursor()
-        sql = """UPDATE habitaciones SET precioPorDia = {0} WHERE numero = {3}""".format(
-            request.json['precioPorDia'], numero)
-        cursor.execute(sql)
-        conexion.connection.commit()
-        return jsonify({'mensaje': "habitacion actualizada"})
+        if request.json['precioPorDia'] < 0 :
+            return jsonify({'mensaje': "No se permiten precios en negativo"})
+        else:
+            cursor = conexion.connection.cursor()
+            sql = """UPDATE habitaciones SET precioPorDia = {0} WHERE numero = {3}""".format(
+                request.json['precioPorDia'], numero)
+            cursor.execute(sql)
+            conexion.connection.commit()
+            return jsonify({'mensaje': "habitacion actualizada"})
 
     except Exception as ex:
         return ex
@@ -379,25 +386,27 @@ def reservar_habitacion():
         if query != 1:
             return jsonify({'mensaje': 'La habitacion no existe'})
         else:
-            sql = "SELECT * FROM reservas WHERE numero = {0}".format(request.json['numero'])
-            query = cursor.execute(sql)
-            if query != 1: 
-                sql = """INSERT INTO reservas (numero, inicio_resv, fin_resv) VALUES ({0}, {1}, DATE_ADD(inicio_resv, INTERVAL {2} DAY))""".format(request.json['numero'], request.json['fecha'], request.json['cantdias'])
-                cursor.execute(sql)
-                conexion.connection.commit()
-                return jsonify({'mensaje': "la habitacion ha sido reservada"})
+            if isinstance(request.json['fecha'], str) == True or request.json['fecha'] < 0:
+                return jsonify({'mensaje': "La fechas en formato 'aaaa-mm-dd'(sin separadores) y no van fechas en negativo"})
             else:
-                sql = "SELECT * FROM reservas WHERE inicio_resv = {0}".format(request.json['fecha'])
+                sql = "SELECT * FROM reservas WHERE numero = {0}".format(request.json['numero'])
                 query = cursor.execute(sql)
-                if query == 1:
+                if query != 1: 
                     sql = """INSERT INTO reservas (numero, inicio_resv, fin_resv) VALUES ({0}, {1}, DATE_ADD(inicio_resv, INTERVAL {2} DAY))""".format(request.json['numero'], request.json['fecha'], request.json['cantdias'])
                     cursor.execute(sql)
                     conexion.connection.commit()
-                    return jsonify({'mensaje': "la habitacion ha sido reservada"})       
+                    return jsonify({'mensaje': "la habitacion ha sido reservada"})
                 else:
-                    return jsonify({'mensaje': "la habitacion no esta disponible"})
-
-
+                    sql = "SELECT * FROM reservas WHERE inicio_resv = {0}".format(request.json['fecha'])
+                    query = cursor.execute(sql)
+                    if query == 1:
+                        sql = """INSERT INTO reservas (numero, inicio_resv, fin_resv) VALUES ({0}, {1}, DATE_ADD(inicio_resv, INTERVAL {2} DAY))""".format(request.json['numero'], request.json['fecha'], request.json['cantdias'])
+                        cursor.execute(sql)
+                        conexion.connection.commit()
+                        return jsonify({'mensaje': "la habitacion ha sido reservada"})       
+                    else:
+                        return jsonify({'mensaje': "la habitacion no esta disponible"})
+                
     except Exception as ex:
         return ex
 
