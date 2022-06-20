@@ -38,15 +38,14 @@ def token_required(func):
 
 @app.route('/')
 def home():
-    
-
 
     if not session.get('logged_in'):
         return render_template('registrar.html')
-    if request.form['blogin'] == "Ingresar":
-        return render_template('login.html')
+    #if request.form['blogin'] == "Ingresar":
+      #  return render_template('login.html')
     else:
-        return 'Ya esta logueado.'
+         session['logged_in'] = False
+         return 'Ya esta logueado.'
 
 
 @app.route('/registrar', methods=['POST'])
