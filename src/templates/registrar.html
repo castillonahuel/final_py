@@ -14,6 +14,7 @@
                 <option >empleado</option>
             </select>
             <input type="password" id="pass" name="confirmacion" placeholder="Contraseña empleado" style="display: none;">
+            <input type="text" name="blogin" value="NO" style="display: none;">
             <script>
                 function myFunction() {
                     var x = document.getElementById("pass");
@@ -30,8 +31,15 @@
 
             
             <input type="submit" value="Registrar">            
-            <label for="">Si ya esta registrado ....</label><button name="blogin" value="Ingresar">Ingresar</button>            
         </form>       
+        <label for="">Si ya esta registrado ....</label>
+        
+        <form action="/registrar" method="post">
+        
+
+            <button name="blogin" value="Ingresar">Ingresar</button>            
+            <!--<a href="/registrar">-->
+        </form>
         
     </body>
 </html>

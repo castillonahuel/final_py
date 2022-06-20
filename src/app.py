@@ -40,6 +40,9 @@ def token_required(func):
 
 @app.route('/')
 def home():
+    
+
+
     if not session.get('logged_in'):
         return render_template('registrar.html')
     if request.form['blogin'] == "Ingresar":
@@ -50,6 +53,9 @@ def home():
 
 @app.route('/registrar', methods=['POST'])
 def registrarUser():
+    
+    if request.form['blogin'] == "Ingresar":
+        return render_template('login.html')
 
     try:
         cursor = conexion.connection.cursor()
