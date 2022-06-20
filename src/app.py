@@ -33,7 +33,6 @@ def token_required(func):
 
 # metodo para detectar la session del usuario
 
-
 @app.route('/')
 def home():
 
@@ -65,8 +64,7 @@ def registrarUser():
 
             rol = request.form['tipo']
             verif = request.form['confirmacion']
-            # print(verif)
-            # return("".format(request.form['pass']))
+            
 
             if rol == 'cliente':
                 sql = """INSERT INTO login (usuario, password, tipo) VALUES ('{0}','{1}','{2}')""".format(request.form['username'],
@@ -86,8 +84,7 @@ def registrarUser():
             else:
                 return make_response('No se puede verificar', 403)
 
-        # else:
-            # return 'el usuario ya existe'
+        
 
     except Exception as ex:
         raise Exception(ex)
@@ -193,7 +190,6 @@ def mostrar_habitaciones_reservadas():
 
 # metodo que busca la habitacion solicitada con numero, valor que que se le pasa a la url
 
-
 def buscar_cuartobd(numero):
     try:
         cursor = conexion.connection.cursor()
@@ -225,8 +221,8 @@ def buscar_habitaciones(numero):
     except Exception as ex:
         return jsonify({'mensaje': "Error", 'exito': False})
 
-# metodo para que el empleado pueda registrar habitaciones
 
+# metodo para que el empleado pueda registrar habitaciones
 
 @app.route('/empleado/registrar', methods=['POST'])
 def registrar_habitaciones():

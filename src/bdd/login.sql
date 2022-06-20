@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 20-06-2022 a las 01:32:04
+-- Tiempo de generación: 20-06-2022 a las 03:45:48
 -- Versión del servidor: 10.4.20-MariaDB
 -- Versión de PHP: 7.4.22
 
@@ -35,6 +35,14 @@ CREATE TABLE `login` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
+-- Volcado de datos para la tabla `login`
+--
+
+INSERT INTO `login` (`id`, `usuario`, `password`, `tipo`) VALUES
+(1, 'fran', '123', 'cliente'),
+(2, 'jorge', '123', 'empleado');
+
+--
 -- Índices para tablas volcadas
 --
 
@@ -52,7 +60,7 @@ ALTER TABLE `login`
 -- AUTO_INCREMENT de la tabla `login`
 --
 ALTER TABLE `login`
-  MODIFY `id` int(6) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
