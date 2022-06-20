@@ -175,7 +175,7 @@ def mostrar_habitaciones():  # metodo que lista las habitaciones creadas en la B
 
 
 @app.route('/habitaciones-reservadas', methods=['GET'])
-# metodo que lista las habitaciones reservadas. Estas tiene un estado de 1. en cambio las que se encuentran libres tiene un estado 0
+# metodo que lista las habitaciones reservadas. 
 def mostrar_habitaciones_reservadas():
     try:
         cursor = conexion.connection.cursor()
