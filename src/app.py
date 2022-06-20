@@ -239,8 +239,8 @@ def registrar_habitaciones():
         if query == 1:
             return jsonify({'mensaje': "ERROR habitacion registrada ya existe"})
         else:
-            if request.json['precioPorDia'] < 0 :
-                return jsonify({'mensaje': "No se permiten precios en negativo"})    
+            if request.json['precioPorDia'] < 0 or request.json['numero'] < 0:
+                return jsonify({'mensaje': "No se permiten precios en negativo ni habitaciones en negativo"})    
             else:
                 sql = """INSERT INTO habitaciones (numero, precioPorDia) VALUES ('{0}','{1}')""".format(request.json['numero'],
                 request.json['precioPorDia'])
